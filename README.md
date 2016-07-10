@@ -13,7 +13,7 @@ Now just link to it in your HTML file like so:
 ## Usage
 Cordial was basically made as a build-your-own-personal-assistant script.
 
-There are {x} steps to using Cordial.
+There are three steps to using Cordial:
 
 1.	Create your own instance of Cordial by assigning `Cordial()` to any variable.
 

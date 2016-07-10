@@ -1,19 +1,19 @@
-;(function (di, al) {
+window.Cordial = function () {
 	'use strict';
 
-	function Cordial() {
-		function dial(raw) {
-			// This should actually be parsed using the regexes from Fuchsia.
-			var formatted = raw,
-				i,
-				match,
-				response;
+	function Cordial(raw) {
+		var parsed = Cordial.parse(raw),
+			i = 0,
+			j = 0,
+			match,
+			response;
 
-			for (i = 0; i < dial.triggers.length; i++) {
-				if (dial.triggers[i].type === 'startsWith') {
-					match = formatted.startsWith(dial.triggers[i].text);
+		for (; i < Cordial.triggers.length; i++) {
+			for (; j < Cordial.triggers[i].text.length; j++) {
+				if (Cordial.triggers[i].type === 'startsWith') {
+					match = (parsed + ' ').startsWith(Cordial.triggers[i].text[j]);
 				} else {
-					match = formatted === dial.triggers[i].text;
+					match = parsed === Cordial.triggers[i].text[j];
 				}
 
 				if (match) {
@@ -22,44 +22,52 @@
 			}
 
 			if (match) {
-				response = dial.triggers[i].response;
-
-				while (response !== 'string') {
-					if (Array.isArray(response)) {
-						response = response[Math.floor(Math.random() * response.length)];
-					} else if (typeof response === 'function') {
-						response = response();
-					} else {
-						return response;
-					}
-				}
-			} else {
-				return null;
+				break;
 			}
 		}
 
-		dial.triggers = [];
+		if (match) {
+			response = Cordial.triggers[i].response;
 
-		dial.extend = function (text, response, type) {
-			if (!Array.isArray(text)) {
-				for (var i = 0; i < text.length; i++) {
-					this.triggers.push({
-						'text': text[i],
-						'response': response,
-						'type': type
-					});
+			while (response !== 'string') {
+				if (Array.isArray(response)) {
+					response = response[Math.floor(Math.random() * response.length)];
+				} else if (typeof response === 'function') {
+					response = response();
+				} else {
+					return response;
 				}
-			} else {
-				this.triggers.push({
-					'text': text,
-					'response': response,
-					'type': type
-				});
 			}
-		};
-
-		return dial;
+		} else {
+			return null;
+		}
 	}
 
-	di[al] = Cordial;
-})(window, 'Cordial');
+	Cordial.triggers = [];
+
+	Cordial.extend = function (text, response, type) {
+		if (!Array.isArray(text) && typeof text !== 'string') {
+			return;
+		}
+
+		if (typeof text === 'string') {
+			text = [text];
+		}
+
+		this.triggers.push({
+			'text': text,
+			'response': response,
+			'type': type
+		});
+	};
+
+	Cordial.parse = function (raw) {
+		return raw
+			.toLowerCase()
+			.replace(/(\?|!|,|"|')+/g, '')
+			.replace(/^\s+|(\.|\s)+$/g, '')
+			.replace(/\s\s+/g, ' ');
+	};
+
+	return Cordial;
+};

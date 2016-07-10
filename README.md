@@ -21,11 +21,51 @@ There are three steps to using Cordial:
 	var personalAssistant = Cordial();
 	```
 
-2.	Now program all of your triggers and responses with the `.extend()` method.
+2.	Now program all of your triggers and responses.
+
+	Simply set the `triggers` property to an array formatted like so:
+
+	```javascript
+	personalAssistant.triggers = [
+		{
+			'text': 'hello',
+			'response': [
+				'Hello...',
+				'Hi!',
+				'Greetings.'
+			],
+			'type': 'startsWith'
+		},
+		{
+			'text': 'what is the time',
+			'response': [
+				'Time for you to get a watch!',
+				function () {
+					var now = new Date(),
+						time,
+						suffix;
+
+					time = [now.getHours(), now.getMinutes()];
+
+					suffix = (time[0] < 12) ? 'AM' : 'PM';
+
+					time[0] = time[0] % 12;
+
+					time[0] = (time[0]) ? time[0] : 12;
+
+					return 'The time is ' + time.join(':') + ' ' + suffix + '.';
+				}
+			],
+			'type': 'startsWith'
+		}
+	];
+	```
+
+	The `.extend()` method can be used to dynamically add triggers or make a personal assistant mod that can be installed to any Cordial instance.
 
 	* `text` can be a string or and array of strings.
 	* `response` will be explained later but it can be an array, a function, or a string.
-	* `type` is optional and is used to determine whether the `text` is checked if it `'startsWith'` or is `'equalTo'` the user's `input`.
+	* `type` is optional and is used to determine whether the `text` is checked if it `'startsWith'` or is `'equalTo'` the `formatted` input.
 
 	```javascript
 	personalAssistant.extend(text, response [, type]);
@@ -62,6 +102,35 @@ There are three steps to using Cordial:
 
 	personalAssistant('Hello!');
 	>> null
+	```
+
+	### Optional Steps
+
+4. Make a custom parsing engine.
+
+	The `.parse()` method is necessary for allowing some ambiguity with the value passed to your personal assistant.
+
+	The built-in parser works like so:
+	```javascript
+	function (raw) {
+		return raw
+			// Makes raw input lower-case.
+			.toLowerCase()
+			// Removes the following characters: ?!,"'
+			.replace(/(\?|!|,|"|')+/g, '')
+			// JavaScript .trim() method + removal of periods at end of input
+			.replace(/^\s+|(\.|\s)+$/g, '')
+			// Condenses whitespace into a single space
+			.replace(/\s+/g, ' ');
+	}
+	```
+
+	You can adjust this however you'd like and transform the raw input into `'...'` if you really wanted to. Here's a version that only affects the capitalization:
+
+	```javascript
+	personalAssistant.parse = function (raw) {
+		return raw.toUpperCase();
+	}
 	```
 
 ## Contributing

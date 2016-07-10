@@ -3,6 +3,7 @@
 
 	function Cordial() {
 		function dial(raw) {
+			// This should actually be parsed using the regexes from Fuchsia.
 			var formatted = raw,
 				i,
 				match,
@@ -23,34 +24,38 @@
 			if (match) {
 				response = dial.triggers[i].response;
 
-				if (Array.isArray(response)) {
-					response = response[Math.floor(Math.random() * response.length)];
-				} else if (typeof response === 'function') {
-					response = response();
-				} else if (typeof response !== 'string') {
-					response = null;
+				while (response !== 'string') {
+					if (Array.isArray(response)) {
+						response = response[Math.floor(Math.random() * response.length)];
+					} else if (typeof response === 'function') {
+						response = response();
+					} else {
+						return response;
+					}
 				}
 			} else {
-				response = null;
+				return null;
 			}
-
-			return response;
 		}
 
-		dial.triggers = [
-			{
-				'text': 'how are you',
-				'response': ['ayy', 'lmao'],
-				'type': 'equalTo'
-			}
-		];
+		dial.triggers = [];
 
 		dial.extend = function (text, response, type) {
-			this.triggers.push({
-				'text': text,
-				'response': response,
-				'type': type
-			});
+			if (!Array.isArray(text)) {
+				for (var i = 0; i < text.length; i++) {
+					this.triggers.push({
+						'text': text[i],
+						'response': response,
+						'type': type
+					});
+				}
+			} else {
+				this.triggers.push({
+					'text': text,
+					'response': response,
+					'type': type
+				});
+			}
 		};
 
 		return dial;

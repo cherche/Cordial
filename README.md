@@ -1,6 +1,8 @@
 # Cordial
 The project that will power Fuchsia.
 
+**The following guide is** ***extremely*** **outdated.**
+
 ## Installation
 Obtain your `cordial.js` file through whatever means you wish (downloading, `git clone`, etc.).
 

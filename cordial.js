@@ -14,7 +14,7 @@
 		this.enabled = true;
 	}
 
-	module.prototype.extend = function (text, response, type) {
+	module.prototype.extend = function (text, response, type, post) {
 		if (!Array.isArray(text) && typeof text !== 'string') {
 			return;
 		}
@@ -22,7 +22,8 @@
 		this.triggers.push({
 			'text': text,
 			'response': response,
-			'type': type
+			'type': type,
+			'post': post
 		});
 	};
 
@@ -48,6 +49,7 @@
 				mod = Cordial.modules[key];
 				if (mod.enabled) {
 					for (i = 0; i < mod.triggers.length; i++) {
+						// Post-processing of modules
 						mod.triggers[i].text =
 							(typeof mod.triggers[i].text === 'string')
 							? [mod.triggers[i].text]
@@ -55,6 +57,11 @@
 
 						mod.triggers[i].type =
 							mod.triggers[i].type || 'startsWith';
+
+						mod.triggers[i].post =
+							(typeof mod.triggers[i].post !== 'string')
+							? ''
+							: mod.triggers[i].post;
 
 						for (j = 0; j < mod.triggers[i].text.length; j++) {
 							if (mod.triggers[i].type === 'startsWith') {
@@ -90,11 +97,13 @@
 					}
 				}
 
-				if (typeof response === 'string' || isElement(response)) {
-					return response;
-				} else {
+				if (typeof response === 'string') {
+					response += mod.triggers[i].post.charAt(Math.floor(Math.random() * mod.triggers[i].post.length));
+				} else if (!isElement(response)) {
 					throw new TypeError('Responses must always return a string or HTMLElement.');
 				}
+
+				return response;
 			} else {
 				return null;
 			}
@@ -119,8 +128,8 @@
 		// We can't just do Cordial.extend = Cordial.modules.core.extend
 		// because it tries to access Cordial>triggers instead of
 		// Cordial.modules.core.triggers.
-		Cordial.extend = function (text, response, type) {
-			Cordial.modules.core.extend(text, response, type);
+		Cordial.extend = function (text, response, type, post) {
+			Cordial.modules.core.extend(text, response, type, post);
 		};
 
 		return Cordial;

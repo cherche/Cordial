@@ -1,6 +1,14 @@
 ;(function () {
 	'use strict';
 
+	// http://stackoverflow.com/a/384380
+	function isElement(obj) {
+		return (
+			typeof HTMLElement === 'object' ? obj instanceof HTMLElement :
+			obj && typeof obj === 'object' && obj !== null && obj.nodeType === 1 && typeof obj.nodeName === 'string'
+		);
+	};
+
 	function module() {
 		this.triggers = [];
 		this.enabled = true;
@@ -9,10 +17,6 @@
 	module.prototype.extend = function (text, response, type) {
 		if (!Array.isArray(text) && typeof text !== 'string') {
 			return;
-		}
-
-		if (typeof text === 'string') {
-			text = [text];
 		}
 
 		this.triggers.push({
@@ -41,13 +45,17 @@
 				response;
 
 			for (key in Cordial.modules) {
-				console.log(key);
 				mod = Cordial.modules[key];
 				if (mod.enabled) {
-					console.log(mod.triggers.length);
 					for (i = 0; i < mod.triggers.length; i++) {
-						console.log(mod);
-						console.log(mod.triggers);
+						mod.triggers[i].text =
+							(typeof mod.triggers[i].text === 'string')
+							? [mod.triggers[i].text]
+							: mod.triggers[i].text;
+
+						mod.triggers[i].type =
+							mod.triggers[i].type || 'startsWith';
+
 						for (j = 0; j < mod.triggers[i].text.length; j++) {
 							if (mod.triggers[i].type === 'startsWith') {
 								match = (parsed + ' ').startsWith(mod.triggers[i].text[j]);
@@ -74,14 +82,18 @@
 			if (match) {
 				response = mod.triggers[i].response;
 
-				while (response !== 'string') {
+				while (Array.isArray(response) || typeof response === 'function') {
 					if (Array.isArray(response)) {
 						response = response[Math.floor(Math.random() * response.length)];
 					} else if (typeof response === 'function') {
 						response = response();
-					} else {
-						return response;
 					}
+				}
+
+				if (typeof response === 'string' || isElement(response)) {
+					return response;
+				} else {
+					throw new TypeError('Responses must always return a string or HTMLElement.');
 				}
 			} else {
 				return null;
@@ -101,11 +113,18 @@
 				.toLowerCase()
 				.replace(/(\?|!|,|"|')+/g, '')
 				.replace(/^\s+|(\.|\s)+$/g, '')
-				.replace(/\s\s+/g, ' ');
+				.replace(/\s+/g, ' ');
 		};
 
-		Cordial.extend = Cordial.modules.core.extend;
+		// We can't just do Cordial.extend = Cordial.modules.core.extend
+		// because it tries to access Cordial>triggers instead of
+		// Cordial.modules.core.triggers.
+		Cordial.extend = function (text, response, type) {
+			Cordial.modules.core.extend(text, response, type);
+		};
 
 		return Cordial;
 	};
+
+	Cordial.isElement = isElement;
 })();

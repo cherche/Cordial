@@ -9,12 +9,28 @@
 		);
 	};
 
-	function module() {
+	function Module() {
 		this.triggers = [];
 		this.enabled = true;
 	}
 
-	module.prototype.extend = function (text, response, type, post) {
+	Module.prototype.install = function (triggers) {
+		if (!Array.isArray(triggers)) {
+			throw new TypeError('(Module) The triggers variable must be an array.');
+		}
+
+		if (this.triggers === []) {
+			this.triggers = triggers;
+		} else {
+			for (var i = 0; i < triggers.length; i++) {
+				this.triggers.push(triggers[i]);
+			}
+		}
+
+		return this;
+	};
+
+	Module.prototype.extend = function (text, response, type, post) {
 		if (!Array.isArray(text) && typeof text !== 'string') {
 			return;
 		}
@@ -25,10 +41,14 @@
 			'type': type,
 			'post': post
 		});
+
+		return this;
 	};
 
-	module.prototype.toggle = function () {
+	Module.prototype.toggle = function () {
 		this.enabled = !this.enabled;
+
+		return this;
 	};
 
 	window.Cordial = function () {
@@ -100,7 +120,7 @@
 				if (typeof response === 'string') {
 					response += mod.triggers[i].post.charAt(Math.floor(Math.random() * mod.triggers[i].post.length));
 				} else if (!isElement(response)) {
-					throw new TypeError('Responses must always return a string or HTMLElement.');
+					throw new TypeError('(Cordial) Responses must always return a string or HTMLElement.');
 				}
 
 				return response;
@@ -110,12 +130,25 @@
 		}
 
 		Cordial.modules = {
-			core: new module()
+			core: new Module()
 		};
 
-		Cordial.addModule = function (name) {
-			this.modules[name] = new module();
-		}
+		Cordial.createModule = function (name) {
+			/* Not being used currently because the maker should be responsible for clashing in names.
+			if (~name.indexOf('$')) {
+				throw new RangeError('(Cordial) Module names cannot contain a "$".');
+			}
+
+			var suffix = 0,
+				rootName = name;
+
+			while (this.modules[name]) {
+				name = rootName + '$' + suffix.toString(16);
+				suffix++;
+			}
+			*/
+			return this.modules[name] = new Module();
+		};
 
 		Cordial.parse = function (raw) {
 			return raw
@@ -126,8 +159,8 @@
 		};
 
 		// We can't just do Cordial.extend = Cordial.modules.core.extend
-		// because it tries to access Cordial>triggers instead of
-		// Cordial.modules.core.triggers.
+		// because it tries to access Cordial.triggers instead of
+		// Cordial.modules.core.triggers
 		Cordial.extend = function (text, response, type, post) {
 			Cordial.modules.core.extend(text, response, type, post);
 		};

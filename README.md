@@ -72,7 +72,7 @@ Cordial was created to be a build-your-own-personal-assistant script.
 	`'response'` can become really intense when you combined the different methods. Passing an array will return a random value from the array. Passing a function will return what the function returns. Passing a string or and HTMLElement returns it. This process will repeat until a string or HTMLElement has been returned.
 
 	```javascript
-	personalAssistant.core.install([
+	personalAssistant.modules.core.install([
 		{
 			'text': 'test',
 			'response': [function () {

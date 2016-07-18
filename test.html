@@ -4,6 +4,18 @@
 		<meta charset="utf-8">
 		<title>test</title>
 		<script src="cordial.js"></script>
+		<script>
+		var Fuchsia = Cordial();
+
+		Fuchsia.install([
+			{
+				'text': 'test',
+				'response': function (ayy) {
+					return ayy;
+				}
+			}
+		]);
+		</script>
 	</head>
 	<body></body>
 </html>

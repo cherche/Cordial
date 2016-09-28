@@ -1,26 +1,6 @@
 ;(function (w) {
 	'use strict';
 
-	var packages = {};
-
-	function noConflict(name, triggers) {
-		if (name.indexOf('$') > -1) {
-			throw new RangeError('(Cordial) Module names cannot contain a "$".');
-		}
-
-		var suffix = 0,
-			rootName = name;
-
-		while (packages[name]) {
-			name = rootName + '$' + suffix.toString(16);
-			suffix++;
-		}
-
-		packages[name] = triggers;
-
-		return packages[name];
-	}
-
 	// http://stackoverflow.com/a/384380
 	function isElement(obj) {
 		return (
@@ -35,9 +15,8 @@
 	}
 
 	Module.prototype.install = function (triggers) {
-		if (typeof triggers === 'string') {
-			triggers = packages[triggers];
-		}
+		var i,
+			j;
 
 		if (!Array.isArray(triggers)) {
 			throw new TypeError('(Cordial) The triggers variable must be an array.');
@@ -46,8 +25,28 @@
 		if (this.triggers === []) {
 			this.triggers = triggers;
 		} else {
-			for (var i = 0; i < triggers.length; i++) {
+			for (i = 0; i < triggers.length; i++) {
 				this.triggers.push(triggers[i]);
+			}
+		}
+
+		// Run through each trigger within the module
+		for (i = 0; i < this.triggers.length; i++) {
+			// Run through all values in the 'text' array
+			for (j = 0; j < this.triggers[i].text.length; j++) {
+				// Post-processing of modules
+				this.triggers[i].text =
+					(Array.isArray(this.triggers[i].text)) ?
+					this.triggers[i].text :
+					[this.triggers[i].text];
+
+				this.triggers[i].type =
+					this.triggers[i].type || 'startsWith';
+
+				this.triggers[i].post =
+					(typeof this.triggers[i].post !== 'string') ?
+					'' :
+					this.triggers[i].post;
 			}
 		}
 
@@ -63,10 +62,10 @@
 	w.Cordial = function () {
 		function Cordial(raw) {
 			if (!raw) {
-				return null;
+				return Cordial.fallback();
 			}
 
-			var parsed = Cordial.parse(raw),
+			var parsed = Cordial.utilities.parse(raw),
 				key,
 				mod,
 				i,
@@ -74,45 +73,34 @@
 				match,
 				response;
 
+			// Run through each module
 			for (key in Cordial.modules) {
 				if (Cordial.modules.hasOwnProperty(key)) {
 					mod = Cordial.modules[key];
+					// Test if module is enabled before going through triggers
 					if (mod.enabled) {
+						// Run through each trigger within the module
 						for (i = 0; i < mod.triggers.length; i++) {
-							// Post-processing of modules
-							mod.triggers[i].text =
-								(typeof mod.triggers[i].text === 'string') ?
-								[mod.triggers[i].text] :
-								mod.triggers[i].text;
-
-							mod.triggers[i].type =
-								mod.triggers[i].type || 'startsWith';
-
-							mod.triggers[i].post =
-								(typeof mod.triggers[i].post !== 'string') ?
-								'' :
-								mod.triggers[i].post;
-
+							// Run through all values in the 'text' array
 							for (j = 0; j < mod.triggers[i].text.length; j++) {
-								if (mod.triggers[i].type === 'startsWith') {
-									match = (parsed + ' ').startsWith(mod.triggers[i].text[j]);
+								if (typeof mod.triggers[i].text[j] === 'string') {
+									if (mod.triggers[i].type === 'startsWith') {
+										match = (parsed + ' ').startsWith(mod.triggers[i].text[j]);
+									} else {
+										match = parsed === mod.triggers[i].text[j];
+									}
 								} else {
-									match = parsed === mod.triggers[i].text[j];
+									// In the case that the value is a regular expression
+									match = !!parsed.match(mod.triggers[i].text[j]);
 								}
 
-								if (match) {
-									break;
-								}
+								if (match) { break; }
 							}
 
-							if (match) {
-								break;
-							}
+							if (match) { break; }
 						}
 
-						if (match) {
-							break;
-						}
+						if (match) { break; }
 					}
 				}
 			}
@@ -128,17 +116,28 @@
 					}
 				}
 
-				if (typeof response === 'string') {
+				if (typeof response === 'string' || isElement(response)) {
 					response += mod.triggers[i].post.charAt(Math.floor(Math.random() * mod.triggers[i].post.length));
-				} else if (!isElement(response)) {
+				} else {
 					throw new TypeError('(Cordial) Responses must always return a string or HTMLElement.');
 				}
 
 				return response;
 			} else {
-				return null;
+				return Cordial.fallback();
 			}
 		}
+
+		Cordial.utilities = {
+			parse: function (raw) {
+				return raw
+					.toLowerCase()
+					.replace(/(\?|!|,|"|')+/g, '')
+					.replace(/^\s+|(\.|\s)+$/g, '')
+					.replace(/\s+/g, ' ');
+			},
+			isElement: isElement
+		};
 
 		Cordial.modules = {
 			core: new Module()
@@ -149,22 +148,14 @@
 			return this.modules[name];
 		};
 
-		Cordial.parse = function (raw) {
-			return raw
-				.toLowerCase()
-				.replace(/(\?|!|,|"|')+/g, '')
-				.replace(/^\s+|(\.|\s)+$/g, '')
-				.replace(/\s+/g, ' ');
-		};
-
 		Cordial.install = function (triggers) {
 			this.modules.core.install(triggers);
 		};
 
+		Cordial.fallback = function () {
+			return null;
+		};
+
 		return Cordial;
 	};
-
-	w.Cordial.packages = packages;
-	w.Cordial.noConflict = noConflict;
-	w.Cordial.isElement = isElement;
 })(window);

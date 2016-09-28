@@ -13,9 +13,6 @@ Now just link to it in your HTML file like so:
 ## Usage
 The old documentation is now *very* outdated and will be rewritten soon.
 
-## Versioning
-[Semantic Versioning.](http://semver.org)
-
 ## Contributing
 Since I lack time for testing, if you come across anything you would like added into Cordial, just [open up and issue](https://github.com/Loquacious/Cordial/issues/new) or add it yourself and [submit a pull request](https://github.com/Loquacious/Cordial/compare) if you really feel like it!
 

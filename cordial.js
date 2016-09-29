@@ -24,22 +24,18 @@
 
 		// Run through each trigger within the module
 		for (i = 0; i < this.triggers.length; i++) {
-			// Run through all values in the 'text' array
-			for (j = 0; j < this.triggers[i].text.length; j++) {
-				// Post-processing of modules
-				this.triggers[i].text =
-					(Array.isArray(this.triggers[i].text)) ?
-					this.triggers[i].text :
-					[this.triggers[i].text];
+			this.triggers[i].text =
+				(Array.isArray(this.triggers[i].text)) ?
+				this.triggers[i].text :
+				[this.triggers[i].text];
 
-				this.triggers[i].type =
-					this.triggers[i].type || 'startsWith';
+			this.triggers[i].type =
+				this.triggers[i].type || 'startsWith';
 
-				this.triggers[i].post =
-					(typeof this.triggers[i].post !== 'string') ?
-					'' :
-					this.triggers[i].post;
-			}
+			this.triggers[i].post =
+				(typeof this.triggers[i].post !== 'string') ?
+				'' :
+				this.triggers[i].post;
 		}
 
 		return this;

@@ -104,9 +104,9 @@
 					}
 				}
 
-				if (typeof response === 'string' || Cordial.utilities.isElement(response)) {
+				if (typeof response === 'string') {
 					response += mod.triggers[i].post.charAt(Math.floor(Math.random() * mod.triggers[i].post.length));
-				} else {
+				} else if (!Cordial.utilities.isElement(response)) {
 					throw new TypeError('(Cordial) Responses must always return a string or HTMLElement.');
 				}
 

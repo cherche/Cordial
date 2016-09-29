@@ -54,7 +54,7 @@
 	w.Cordial = function () {
 		function Cordial(raw) {
 			if (!raw) {
-				return Cordial.fallback();
+				return null;
 			}
 
 			var parsed = Cordial.utilities.parse(raw),
@@ -116,7 +116,7 @@
 
 				return response;
 			} else {
-				return Cordial.fallback();
+				return Cordial.fallback(parsed);
 			}
 		}
 

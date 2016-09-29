@@ -1,14 +1,6 @@
 ;(function (w) {
 	'use strict';
 
-	// http://stackoverflow.com/a/384380
-	function isElement(obj) {
-		return (
-			typeof HTMLElement === 'object' ? obj instanceof HTMLElement :
-			obj && typeof obj === 'object' && obj !== null && obj.nodeType === 1 && typeof obj.nodeName === 'string'
-		);
-	}
-
 	function Module() {
 		this.triggers = [];
 		this.enabled = true;
@@ -116,7 +108,7 @@
 					}
 				}
 
-				if (typeof response === 'string' || isElement(response)) {
+				if (typeof response === 'string' || Cordial.utilities.isElement(response)) {
 					response += mod.triggers[i].post.charAt(Math.floor(Math.random() * mod.triggers[i].post.length));
 				} else {
 					throw new TypeError('(Cordial) Responses must always return a string or HTMLElement.');
@@ -136,7 +128,13 @@
 					.replace(/^\s+|(\.|\s)+$/g, '')
 					.replace(/\s+/g, ' ');
 			},
-			isElement: isElement
+			// http://stackoverflow.com/a/384380
+			isElement: function (obj) {
+				return (
+					typeof HTMLElement === 'object' ? obj instanceof HTMLElement :
+					obj && typeof obj === 'object' && obj !== null && obj.nodeType === 1 && typeof obj.nodeName === 'string'
+				);
+			}
 		};
 
 		Cordial.modules = {

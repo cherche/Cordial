@@ -16,7 +16,8 @@ function Cordial() {
 					case 'endsWith':
 						match = parsed[type](value);
 						break;
-					case 'isEqualTo':
+					default:
+					// case 'isEqualTo':
 						match = parsed === value;
 					}
 
@@ -34,7 +35,7 @@ function Cordial() {
 							}
 						}
 
-						if (typeof finalTemplate === 'string') {
+						if (typeof finalTemplate === 'string' && post && post.length > 0) {
 							finalTemplate += Cordial.getRandomValue(post);
 						}
 
@@ -43,13 +44,13 @@ function Cordial() {
 				}
 			}
 		}
+
+		return c.fallback();
 	}
 
-	c.categories = {
-		core: []
-	};
+	c.categories = {};
 
-	c.parse = x => x
+	c.parse = input => input
 		.toLowerCase()
 		.replace(/(\?|!|,|"|')+|^(\.|\s)+|(\.|\s)+$/g, '')
 		.replace(/\s+/g, ' ');

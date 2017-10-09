@@ -39,22 +39,24 @@ Friend('Hello.')
 Cordial uses many of the same names as elements of [AIML](http://www.alicebot.org/aiml.html). Unlike AIML, however, Cordial allows you to have a set of templates containing possible responses, and to have a set of patterns returning the same set of templates.
 
 ```javascript
-// 'greeting' is the key representing a group of categories
+// 'greeting' is the key representing a group of categories.
 Friend.group.greeting = [{
   // This is a set of patterns that will have all
-  // of its elements tested to match an input
+  // of its elements tested to match an input.
   patterns: ['hello', 'hey', 'hi', 'greetings'],
 
   // This is a set of templates from which a random
-  // template will be selected
+  // template will be selected.
   templates: ['Hello', 'Hey', 'Hi', 'Greetings'],
 
   // This is an array of strings from which a random
-  // string will be selected and appended to the template
-  // This is optional
-  trails: '.?!'.split(''),
+  // string will be selected and appended to the template.
+  // Alternatively, if your trails are single characters,
+  // use a string of characters instead.
+  // This is optional.
+  trails: '.?!',
 
-  // This is how Cordial will use the pattern to match an input
+  // This is how Cordial will use the pattern to match an input.
   type: 'startsWith'
 }]
 ```
@@ -73,9 +75,9 @@ This will repeat until the template has been reduced to one of the two allowed r
 Friend.categories.almostEcho = {
   patterns: ['echo'],
   templates: [
-    // Picks one of these functions from the array
+    // Picks one of these functions from the array.
     // Passes the parsed input into the function and takes
-    // the returned value
+    // the returned value.
     function loudly (input) { return input.toUpperCase() },
     function hissing (input) { return input
       .split('')

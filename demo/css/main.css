@@ -1,0 +1,37 @@
+/* { outline: 1px dotted red; }/*/
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  height: 100%;
+}
+
+#container {
+  margin: 0 auto;
+  width: 40em;
+  padding: 1em;
+}
+
+#input {
+  margin: 0;
+  padding: 0;
+  display: block;
+  width: 100%;
+  font-size: 1em;
+}
+
+.conversation {
+  color: #444;
+  padding: 0.75em 1em;
+}
+
+.conversation.you {
+  border-left: 0.25em solid #444;
+}
+
+.conversation.friend {
+  border-right: 0.25em solid #444;
+  background-color: #eee;
+}

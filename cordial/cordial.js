@@ -7,9 +7,11 @@ export default function Cordial () {
     let match = false
     let result
 
-    const categories = Object.values(CordialInstance.categories)
+    const groups = Object.values(CordialInstance.groups)
+    for (const category of groups) {
 
-    for (let { patterns, templates, post, type } of categories) {
+    for (let { patterns, templates, trails, type } of category) {
+      console.log(category, trails)
       for (const pattern of patterns) {
         if (typeof pattern === 'string') {
           switch (type) {
@@ -46,8 +48,8 @@ export default function Cordial () {
             }
           }
 
-          if (typeof result === 'string' && post && post.length > 0) {
-            result += getRandomValue(post)
+          if (typeof result === 'string' && trails && trails.length > 0) {
+            result += getRandomValue(trails)
           }
 
           return result
@@ -55,10 +57,12 @@ export default function Cordial () {
       }
     }
 
+    }
+
     return CordialInstance.getDefaultValue()
   }
 
-  CordialInstance.categories = {}
+  CordialInstance.groups = {}
 
   CordialInstance.parse = input => input
     // Remove all punctuation

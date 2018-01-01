@@ -2,101 +2,121 @@
 The project that powers Fuchsia.
 
 ## Installation
-Obtain your `cordial` directory through whatever means you wish (downloading, `git clone`, etc.).
+Download the `cordial.js` file and drop it in wherever you wish.
 
-Now just import it in your main script and you're set!
+Now, import it.
 
 ```javascript
-import Cordial from './cordial/cordial.js'
+import Cordial from '/path/to/cordial.js'
+// OR
+import Cordial from '/path/to/cordial'
 ```
 
-Make sure in your HTML, your script has a `type` of `"module"`.
+Make sure in your HTML, your script tag has a `type` of `"module"`.
 
 ```html
-<script type="module" src="js/main.js"></script>
+<script type="module" src="/path/to/main.js"></script>
 ```
 
-## Usage
-
-### `Cordial()`
-
-Returns a `CordialInstance` object.
+## Documentation
+Create a `CordialInstance` object.
 
 ```javascript
-var Friend = Cordial()
+const fuchsia = Cordial()
 ```
 
-### `CordialInstance()`
+Now, you may set the `categories` property (an array of categories).
 
-The function (and therefore also object) that `Cordial()` returns. Pass a string to this function to get a response based on the patterns that you've set for your instance.
-
-```javascript
-Friend('Hello.')
-```
-
-### Patterns
-
-Cordial uses many of the same names as elements of [AIML](http://www.alicebot.org/aiml.html). Unlike AIML, however, Cordial allows you to have a set of templates containing possible responses, and to have a set of patterns returning the same set of templates.
+A category takes the following form:
 
 ```javascript
-// 'greeting' is the key representing a group of categories.
-Friend.group.greeting = [{
-  // This is a set of patterns that will have all
-  // of its elements tested to match an input.
-  patterns: ['hello', 'hey', 'hi', 'greetings'],
-
-  // This is a set of templates from which a random
-  // template will be selected.
-  templates: ['Hello', 'Hey', 'Hi', 'Greetings'],
-
-  // This is an array of strings from which a random
-  // string will be selected and appended to the template.
-  // Alternatively, if your trails are single characters,
-  // use a string of characters instead.
-  // This is optional.
-  trails: '.?!',
-
-  // This is how Cordial will use the pattern to match an input.
-  type: 'startsWith'
-}]
-```
-
-### Template Reduction
-
-By default, any template that is neither a string nor an element will be reduced to one.
-
-If a template is a(n):
-- array, a random element of it will be selected
-- function, it will be executed with the first argument being the input
-
-This will repeat until the template has been reduced to one of the two allowed return values.
-
-```javascript
-Friend.categories.almostEcho = {
-  patterns: ['echo'],
-  templates: [
-    // Picks one of these functions from the array.
-    // Passes the parsed input into the function and takes
-    // the returned value.
-    function loudly (input) { return input.toUpperCase() },
-    function hissing (input) { return input
-      .split('')
-      .map((char) => {
-        if (char === 's') {
-          return char.repeat(3)
-        } else {
-          return char
-        }
-      })
-      .join('')
-    },
-    function reversed (input) { return input.split('').reverse().join('') },
-    function withALisp (input) { return input.split('s').join('th') },
-    function onlyKnowingTheLetterQ (input) { return 'q'.repeat(input.length) }
-  ],
-  type: 'startsWith'
+{
+  patterns: {
+    // An array of things to check for
+    matches: [
+      'hello',
+      'hi'
+    ],
+    // The type property may be one of the following:
+    // - 'equals'
+    // - 'includes'
+    // - 'startsWith'
+    // - 'endsWith'
+    // - 'regex'
+    type: 'startsWith'
+  },
+  // If the input is a valid pattern, return the following
+  templates: {
+    // Either an array of things to respond with (static)
+    // or a function whose return value will be the response (computed)
+    responses: [
+      'Hello',
+      'Hi'
+    ],
+    // If the type is 'static', take a random value from the responses array
+    // If the type is 'computed', pass in the input to the responses array
+    type: 'static'
+    // The trails property is optional
+    // Take a random string from this array and append it to the response
+    trails: [
+      '.',
+      '!'
+    ],
+  }
 }
 ```
 
-## Contributing
-Since I lack time for testing, if you come across anything you would like added into Cordial, just [open up and issue](https://github.com/cherche/Cordial/issues/new) or add it yourself and [submit a pull request](https://github.com/cherche/Cordial/compare) if you really feel like it!
+Now, push them into the `categories` array of your `CordialInstance`.
+
+```javascript
+const cake = { isGood: true }
+
+fuchsia.categories.push({
+  patterns: {
+    matches: [
+      'hello',
+      'hi'
+    ],
+    type: 'startsWith'
+  },
+  templates: {
+    responses: [
+      'Hello',
+      'Hi'
+    ],
+    type: 'static'
+    trails: [
+      '.',
+      '!'
+    ],
+  }
+},
+{
+  patterns: {
+    matches: ['pizza'],
+    type: 'includes'
+  },
+  templates: {
+    responses: () => {
+      if (cake.isGood) {
+        return 'Did someone say "cake"?'
+      }
+    },
+    type: 'computed'
+  }
+})
+```
+
+To test a string against your patterns, use the `.tell()` method of your `CordialInstance`.
+
+```javascript
+fuchsia.tell('Hello, friend.')
+// One of the following:
+// 'Hello.', 'Hello!', 'Hi.', 'Hi!'
+
+fuchsia.tell('It turns out, my friend hates cake. He thinks it\'s as good as dirt.')
+// 'Did someone say "cake"?'
+
+fuchsia.tell('You\'ll be left speechless.') // Matches no patterns
+// null
+```

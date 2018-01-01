@@ -1,0 +1,29 @@
+{
+  "name": "cordial",
+  "version": "1.0.0",
+  "description": "The project that powers Fuchsia.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cherche/cordial.git"
+  },
+  "author": "Ryan Nguyen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cherche/cordial/issues"
+  },
+  "homepage": "https://github.com/cherche/cordial#readme",
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.36",
+    "@babel/preset-env": "^7.0.0-beta.36",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-minify": "^0.2.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.0",
+    "gulp-babel-minify": "^0.2.0",
+    "webpack-stream": "^4.0.0"
+  }
+}

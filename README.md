@@ -84,16 +84,16 @@ fuchsia.categories.push({
       'Hello',
       'Hi'
     ],
-    type: 'static'
+    type: 'static',
     trails: [
       '.',
       '!'
-    ],
+    ]
   }
 },
 {
   patterns: {
-    matches: ['pizza'],
+    matches: ['cake'],
     type: 'includes'
   },
   templates: {
